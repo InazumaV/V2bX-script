@@ -163,19 +163,19 @@ install_XrayR() {
     fi
 
     if [[ ! -f /etc/XrayR/dns.json ]]; then
-        cp dns.json /etc/XrayR/
+        wget -N https://raw.githubusercontents.com/Misaka-blog/XrayR-script/master/config/dns.json -O /etc/XrayR/dns.json
     fi
     if [[ ! -f /etc/XrayR/route.json ]]; then
-        cp route.json /etc/XrayR/
+        wget -N https://raw.githubusercontents.com/Misaka-blog/XrayR-script/master/config/route.json -O /etc/XrayR/route.json
     fi
     if [[ ! -f /etc/XrayR/custom_outbound.json ]]; then
-        cp custom_outbound.json /etc/XrayR/
+        wget -N https://raw.githubusercontents.com/Misaka-blog/XrayR-script/master/config/custom_outbound.json -O /etc/XrayR/custom_outbound.json
     fi
     if [[ ! -f /etc/XrayR/custom_inbound.json ]]; then
-        cp custom_inbound.json /etc/XrayR/
+        wget -N https://raw.githubusercontents.com/Misaka-blog/XrayR-script/master/config/custom_inbound.json -O /etc/XrayR/custom_inbound.json
     fi
     if [[ ! -f /etc/XrayR/ruelist ]]; then
-        cp ruelist /etc/XrayR/
+        wget -N https://raw.githubusercontents.com/Misaka-blog/XrayR-script/master/config/ruelist -O /etc/XrayR/ruelist
     fi
     curl -o /usr/bin/XrayR -Ls https://raw.githubusercontent.com/Misaka-blog/XrayR-script/master/XrayR.sh
     chmod +x /usr/bin/XrayR
