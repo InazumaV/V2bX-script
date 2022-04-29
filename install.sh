@@ -102,11 +102,11 @@ install_acme() {
 
 install_XrayR() {
     if [[ -e /usr/local/XrayR/ ]]; then
-        rm /usr/local/XrayR/ -rf
+        rm -rf /usr/local/XrayR/
     fi
 
     mkdir /usr/local/XrayR/ -p
-	cd /usr/local/XrayR/
+    cd /usr/local/XrayR/
 
     if  [ $# == 0 ] ;then
         last_version=$(curl -Ls "https://api.github.com/repos/Misaka-blog/XrayR/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
@@ -181,6 +181,8 @@ install_XrayR() {
     chmod +x /usr/bin/XrayR
     ln -s /usr/bin/XrayR /usr/bin/xrayr # 小写兼容
     chmod +x /usr/bin/xrayr
+    cd $cur_dir
+    rm -f install.sh
     echo -e ""
     echo "XrayR 管理脚本使用方法 (兼容使用xrayr执行，大小写不敏感): "
     echo "------------------------------------------"
