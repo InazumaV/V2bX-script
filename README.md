@@ -5,6 +5,8 @@ A Xray backend framework that can easily support many panels.
 
 Find the source code here: [Misaka-blog/XrayR](https://github.com/Misaka-blog/XrayR)
 
+如对脚本不放心，可使用此沙箱先测一遍再使用：https://killercoda.com/playgrounds/scenario/ubuntu
+
 # 详细使用教程
 
 [教程](https://crackair.gitbook.io/xrayr-project/)
