@@ -100,14 +100,6 @@ update() {
     else
         version=$2
     fi
-#    confirm "本功能会强制重装当前最新版，数据不会丢失，是否继续?" "n"
-#    if [[ $? != 0 ]]; then
-#        echo -e "${red}已取消${plain}"
-#        if [[ $1 != 0 ]]; then
-#            before_show_menu
-#        fi
-#        return 0
-#    fi
     bash <(curl -Ls https://raw.githubusercontents.com/Misaka-blog/XrayR-script/master/install.sh) $version
     if [[ $? == 0 ]]; then
         echo -e "${green}更新完成，已自动重启 XrayR，请使用 XrayR log 查看运行日志${plain}"
@@ -258,15 +250,6 @@ show_log() {
 
 install_bbr() {
     bash <(curl -L -s https://raw.githubusercontents.com/chiakge/Linux-NetSpeed/master/tcp.sh)
-    #if [[ $? == 0 ]]; then
-    #    echo ""
-    #    echo -e "${green}安装 bbr 成功，请重启服务器${plain}"
-    #else
-    #    echo ""
-    #    echo -e "${red}下载 bbr 安装脚本失败，请检查本机能否连接 Github${plain}"
-    #fi
-
-    #before_show_menu
 }
 
 update_shell() {
@@ -365,6 +348,84 @@ show_XrayR_version() {
     fi
 }
 
+generate_config_file() {
+    echo -e "${yellow}XrayR 配置文件生成向导${plain}"
+    echo -e "${red}请阅读以下注意事项：${plain}"
+    echo -e "${red}1. 目前该功能正处测试阶段${plain}"
+    echo -e "${red}2. 生成的配置文件保存到 /etc/XrayR/config.yml${plain}"
+    echo -e "${red}3. 原来的配置文件会保存到 /etc/XrayR/config.yml.bak${plain}"
+    read -p "是否继续生成配置文件？(y/n)" generate_config_file_continue
+    if [[ $generate_config_file_continue =~ "y"|"Y" ]]; then
+        read -p "请输入机场面板：" PanelType
+        read -p "请输入机场网址：" ApiHost
+        read -p "请输入面板对接API Key：" ApiKey
+        read -p "请输入节点Node ID:" NodeID
+        read -p "请输入节点类型：" NodeType
+        cd /etc/XrayR
+        mv config.yml config.yml.bak
+        cat <<EOF > /etc/XrayR/config.yml
+Log:
+  Level: warning # Log level: none, error, warning, info, debug 
+  AccessPath: # /etc/XrayR/access.Log
+  ErrorPath: # /etc/XrayR/error.log
+DnsConfigPath: # /etc/XrayR/dns.json # Path to dns config, check https://xtls.github.io/config/base/dns/ for help
+InboundConfigPath: # /etc/XrayR/custom_inbound.json # Path to custom inbound config, check https://xtls.github.io/config/inbound.html for help
+RouteConfigPath: # /etc/XrayR/route.json # Path to route config, check https://xtls.github.io/config/base/route/ for help
+OutboundConfigPath: # /etc/XrayR/custom_outbound.json # Path to custom outbound config, check https://xtls.github.io/config/base/outbound/ for help
+ConnetionConfig:
+  Handshake: 4 # Handshake time limit, Second
+  ConnIdle: 30 # Connection idle time limit, Second
+  UplinkOnly: 2 # Time limit when the connection downstream is closed, Second
+  DownlinkOnly: 4 # Time limit when the connection is closed after the uplink is closed, Second
+  BufferSize: 64 # The internal cache size of each connection, kB 
+Nodes:
+  -
+    PanelType: "$PanelType" # Panel type: SSpanel, V2board, PMpanel, Proxypanel
+    ApiConfig:
+      ApiHost: "$ApiHost"
+      ApiKey: "$ApiKey"
+      NodeID: $NodeID
+      NodeType: $NodeType # Node type: V2ray, Shadowsocks, Trojan, Shadowsocks-Plugin
+      Timeout: 30 # Timeout for the api request
+      EnableVless: false # Enable Vless for V2ray Type
+      EnableXTLS: false # Enable XTLS for V2ray and Trojan
+      SpeedLimit: 0 # Mbps, Local settings will replace remote settings, 0 means disable
+      DeviceLimit: 0 # Local settings will replace remote settings, 0 means disable
+      RuleListPath: # /etc/XrayR/rulelist Path to local rulelist file
+    ControllerConfig:
+      ListenIP: 0.0.0.0 # IP address you want to listen
+      SendIP: 0.0.0.0 # IP address you want to send pacakage
+      UpdatePeriodic: 60 # Time to update the nodeinfo, how many sec.
+      EnableDNS: false # Use custom DNS config, Please ensure that you set the dns.json well
+      DNSType: AsIs # AsIs, UseIP, UseIPv4, UseIPv6, DNS strategy
+      EnableProxyProtocol: false # Only works for WebSocket and TCP
+      EnableFallback: false # Only support for Trojan and Vless
+      FallBackConfigs:  # Support multiple fallbacks
+        -
+          SNI: # TLS SNI(Server Name Indication), Empty for any
+          Path: # HTTP PATH, Empty for any
+          Dest: 80 # Required, Destination of fallback, check https://xtls.github.io/config/fallback/ for details.
+          ProxyProtocolVer: 0 # Send PROXY protocol version, 0 for dsable
+      CertConfig:
+        CertMode: dns # Option about how to get certificate: none, file, http, dns. Choose "none" will forcedly disable the tls config.
+        CertDomain: "node1.test.com" # Domain to cert
+        CertFile: /etc/XrayR/cert/node1.test.com.cert # Provided if the CertMode is file
+        KeyFile: /etc/XrayR/cert/node1.test.com.key
+        Provider: alidns # DNS cert provider, Get the full support list here: https://go-acme.github.io/lego/dns/
+        Email: test@me.com
+        DNSEnv: # DNS ENV option used by DNS provider
+          ALICLOUD_ACCESS_KEY: aaa
+          ALICLOUD_SECRET_KEY: bbb
+EOF
+        echo -e "${green}配置文件生成完成，正在重新启动 XrayR 服务${plain}"
+        xrayr restart
+        before_show_menu
+    else
+        echo -e "${red}已取消配置文件生成${plain}"
+        before_show_menu
+    fi
+}
+
 show_usage() {
     echo "XrayR 管理脚本使用方法: "
     echo "------------------------------------------"
@@ -406,74 +467,48 @@ show_menu() {
  ${green}11.${plain} 一键安装 bbr (最新内核)
  ${green}12.${plain} 查看 XrayR 版本 
  ${green}13.${plain} 升级维护脚本
+ ${green}14.${plain} 生成 XrayR 配置文件
  "
  #后续更新可加入上方字符串中
     show_status
-    echo && read -p "请输入选择 [0-13]: " num
+    echo && read -p "请输入选择 [0-14]: " num
 
     case "${num}" in
-        0) config
-        ;;
-        1) check_uninstall && install
-        ;;
-        2) check_install && update
-        ;;
-        3) check_install && uninstall
-        ;;
-        4) check_install && start
-        ;;
-        5) check_install && stop
-        ;;
-        6) check_install && restart
-        ;;
-        7) check_install && status
-        ;;
-        8) check_install && show_log
-        ;;
-        9) check_install && enable
-        ;;
-        10) check_install && disable
-        ;;
-        11) install_bbr
-        ;;
-        12) check_install && show_XrayR_version
-        ;;
-        13) update_shell
-        ;;
-        *) echo -e "${red}请输入正确的数字 [0-12]${plain}"
-        ;;
+        0) config ;;
+        1) check_uninstall && install ;;
+        2) check_install && update ;;
+        3) check_install && uninstall ;;
+        4) check_install && start ;;
+        5) check_install && stop ;;
+        6) check_install && restart ;;
+        7) check_install && status ;;
+        8) check_install && show_log ;;
+        9) check_install && enable ;;
+        10) check_install && disable ;;
+        11) install_bbr ;;
+        12) check_install && show_XrayR_version ;;
+        13) update_shell ;;
+        14) generate_config ;;
+        *) echo -e "${red}请输入正确的数字 [0-14]${plain}" ;;
     esac
 }
 
 
 if [[ $# > 0 ]]; then
     case $1 in
-        "start") check_install 0 && start 0
-        ;;
-        "stop") check_install 0 && stop 0
-        ;;
-        "restart") check_install 0 && restart 0
-        ;;
-        "status") check_install 0 && status 0
-        ;;
-        "enable") check_install 0 && enable 0
-        ;;
-        "disable") check_install 0 && disable 0
-        ;;
-        "log") check_install 0 && show_log 0
-        ;;
-        "update") check_install 0 && update 0 $2
-        ;;
-        "config") config $*
-        ;;
-        "install") check_uninstall 0 && install 0
-        ;;
-        "uninstall") check_install 0 && uninstall 0
-        ;;
-        "version") check_install 0 && show_XrayR_version 0
-        ;;
-        "update_shell") update_shell
-        ;;
+        "start") check_install 0 && start 0 ;;
+        "stop") check_install 0 && stop 0 ;;
+        "restart") check_install 0 && restart 0 ;;
+        "status") check_install 0 && status 0 ;;
+        "enable") check_install 0 && enable 0 ;;
+        "disable") check_install 0 && disable 0 ;;
+        "log") check_install 0 && show_log 0 ;;
+        "update") check_install 0 && update 0 $2 ;;
+        "config") config $* ;;
+        "install") check_uninstall 0 && install 0 ;;
+        "uninstall") check_install 0 && uninstall 0 ;;
+        "version") check_install 0 && show_XrayR_version 0 ;;
+        "update_shell") update_shell ;;
         *) show_usage
     esac
 else
