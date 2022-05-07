@@ -123,3 +123,7 @@ Nodes:
 docker-compose pull
 docker-compose up -d
 ```
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/Misaka-blog/XrayR-script.svg)](https://starchart.cc/Misaka-blog/XrayR-script)
