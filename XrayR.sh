@@ -478,6 +478,7 @@ show_usage() {
     echo "XrayR enable       - 设置 XrayR 开机自启"
     echo "XrayR disable      - 取消 XrayR 开机自启"
     echo "XrayR log          - 查看 XrayR 日志"
+    echo "XrayR generate     - 生成 XrayR 配置文件"
     echo "XrayR update       - 更新 XrayR"
     echo "XrayR update x.x.x - 更新 XrayR 指定版本"
     echo "XrayR install      - 安装 XrayR"
@@ -548,6 +549,7 @@ if [[ $# > 0 ]]; then
         "log") check_install 0 && show_log 0 ;;
         "update") check_install 0 && update 0 $2 ;;
         "config") config $* ;;
+        "generate") generate_config_file ;;
         "install") check_uninstall 0 && install 0 ;;
         "uninstall") check_install 0 && uninstall 0 ;;
         "version") check_install 0 && show_XrayR_version 0 ;;
