@@ -441,13 +441,30 @@ Nodes:
           ALICLOUD_ACCESS_KEY: aaa
           ALICLOUD_SECRET_KEY: bbb
 EOF
-        echo -e "${green}配置文件生成完成，正在重新启动 XrayR 服务${plain}"
+        echo -e "${green}XrayR 配置文件生成完成，正在重新启动 XrayR 服务${plain}"
         xrayr restart
         before_show_menu
     else
-        echo -e "${red}已取消配置文件生成${plain}"
+        echo -e "${red}已取消 XrayR 配置文件生成${plain}"
         before_show_menu
     fi
+}
+
+# 放开防火墙端口
+open_ports() {
+    systemctl stop firewalld.service 2>/dev/null
+    systemctl disable firewalld.service 2>/dev/null
+    setenforce 0 2>/dev/null
+    ufw disable 2>/dev/null
+    iptables -P INPUT ACCEPT 2>/dev/null
+    iptables -P FORWARD ACCEPT 2>/dev/null
+    iptables -P OUTPUT ACCEPT 2>/dev/null
+    iptables -t nat -F 2>/dev/null
+    iptables -t mangle -F 2>/dev/null
+    iptables -F 2>/dev/null
+    iptables -X 2>/dev/null
+    netfilter-persistent save 2>/dev/null
+    green "放开防火墙端口成功！"
 }
 
 show_usage() {
@@ -492,6 +509,7 @@ show_menu() {
  ${green}12.${plain} 查看 XrayR 版本 
  ${green}13.${plain} 升级维护脚本
  ${green}14.${plain} 生成 XrayR 配置文件
+ ${green}15.${plain} 放行 VPS 的所有网络端口
  "
  #后续更新可加入上方字符串中
     show_status
@@ -513,6 +531,7 @@ show_menu() {
         12) check_install && show_XrayR_version ;;
         13) update_shell ;;
         14) generate_config_file ;;
+        15) open_ports ;;
         *) echo -e "${red}请输入正确的数字 [0-14]${plain}" ;;
     esac
 }
