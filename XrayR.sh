@@ -352,8 +352,9 @@ generate_config_file() {
     echo -e "${yellow}XrayR 配置文件生成向导${plain}"
     echo -e "${red}请阅读以下注意事项：${plain}"
     echo -e "${red}1. 目前该功能正处测试阶段${plain}"
-    echo -e "${red}2. 生成的配置文件保存到 /etc/XrayR/config.yml${plain}"
+    echo -e "${red}2. 生成的配置文件会保存到 /etc/XrayR/config.yml${plain}"
     echo -e "${red}3. 原来的配置文件会保存到 /etc/XrayR/config.yml.bak${plain}"
+    echo -e "${red}4. 目前不支持TLS${plain}"
     read -p "是否继续生成配置文件？(y/n)" generate_config_file_continue
     if [[ $generate_config_file_continue =~ "y"|"Y" ]]; then
         echo -e "${yellow}请选择你的机场面板，如未列出则不支持：${plain}"
