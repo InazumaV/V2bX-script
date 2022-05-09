@@ -465,7 +465,7 @@ open_ports() {
     iptables -F 2>/dev/null
     iptables -X 2>/dev/null
     netfilter-persistent save 2>/dev/null
-    green "放开防火墙端口成功！"
+    echo -e "${green}放开防火墙端口成功！${plain}"
 }
 
 show_usage() {
@@ -481,7 +481,7 @@ show_usage() {
     echo "XrayR log          - 查看 XrayR 日志"
     echo "XrayR generate     - 生成 XrayR 配置文件"
     echo "XrayR update       - 更新 XrayR"
-    echo "XrayR update x.x.x - 更新 XrayR 指定版本"
+    echo "XrayR update x.x.x - 安装 XrayR 指定版本"
     echo "XrayR install      - 安装 XrayR"
     echo "XrayR uninstall    - 卸载 XrayR"
     echo "XrayR version      - 查看 XrayR 版本"
@@ -509,7 +509,7 @@ show_menu() {
 ————————————————
  ${green}11.${plain} 一键安装 bbr (最新内核)
  ${green}12.${plain} 查看 XrayR 版本 
- ${green}13.${plain} 升级维护脚本
+ ${green}13.${plain} 升级 XrayR 维护脚本
  ${green}14.${plain} 生成 XrayR 配置文件
  ${green}15.${plain} 放行 VPS 的所有网络端口
  "
