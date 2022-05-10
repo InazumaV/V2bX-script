@@ -17,13 +17,13 @@ elif cat /etc/issue | grep -Eqi "debian"; then
     release="debian"
 elif cat /etc/issue | grep -Eqi "ubuntu"; then
     release="ubuntu"
-elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+elif cat /etc/issue | grep -Eqi "centos|red hat|redhat|rocky|alma|oracle linux"; then
     release="centos"
 elif cat /proc/version | grep -Eqi "debian"; then
     release="debian"
 elif cat /proc/version | grep -Eqi "ubuntu"; then
     release="ubuntu"
-elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+elif cat /proc/version | grep -Eqi "centos|red hat|redhat|rocky|alma|oracle linux"; then
     release="centos"
 else
     echo -e "${red}未检测到系统版本，请联系脚本作者！${plain}\n" && exit 1
@@ -48,8 +48,6 @@ if [ "$(getconf WORD_BIT)" != '32' ] && [ "$(getconf LONG_BIT)" != '64' ] ; then
     echo "本软件不支持 32 位系统(x86)，请使用 64 位系统(x86_64)，如果检测有误，请联系作者"
     exit 2
 fi
-
-os_version=""
 
 # os version
 if [[ -f /etc/os-release ]]; then
@@ -78,7 +76,7 @@ install_base() {
         yum install epel-release -y
         yum install wget curl unzip tar crontabs socat -y
     else
-        apt update -y
+        apt-get update -y
         apt install wget curl unzip tar cron socat -y
     fi
 }
