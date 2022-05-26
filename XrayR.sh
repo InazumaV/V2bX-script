@@ -51,12 +51,12 @@ fi
 
 confirm() {
     if [[ $# > 1 ]]; then
-        echo && read -p "$1 [默认$2]: " temp
+        echo && read -rp "$1 [默认$2]: " temp
         if [[ x"${temp}" == x"" ]]; then
             temp=$2
         fi
     else
-        read -p "$1 [y/n]: " temp
+        read -rp "$1 [y/n]: " temp
     fi
     if [[ x"${temp}" == x"y" || x"${temp}" == x"Y" ]]; then
         return 0
@@ -118,7 +118,7 @@ config() {
             ;;
         1)
             echo -e "检测到您未启动XrayR或XrayR自动重启失败，是否查看日志？[Y/n]" && echo
-            read -e -p "(默认: y):" yn
+            read -e -rp "(默认: y):" yn
             [[ -z ${yn} ]] && yn="y"
             if [[ ${yn} == [Yy] ]]; then
                show_log
@@ -351,14 +351,14 @@ generate_config_file() {
     echo -e "${red}2. 生成的配置文件会保存到 /etc/XrayR/config.yml${plain}"
     echo -e "${red}3. 原来的配置文件会保存到 /etc/XrayR/config.yml.bak${plain}"
     echo -e "${red}4. 目前不支持TLS${plain}"
-    read -p "是否继续生成配置文件？(y/n)" generate_config_file_continue
+    read -rp "是否继续生成配置文件？(y/n)" generate_config_file_continue
     if [[ $generate_config_file_continue =~ "y"|"Y" ]]; then
         echo -e "${yellow}请选择你的机场面板，如未列出则不支持：${plain}"
         echo -e "${green}1. SSpanel ${plain}"
         echo -e "${green}2. V2board ${plain}"
         echo -e "${green}3. PMpanel ${plain}"
         echo -e "${green}4. Proxypanel ${plain}"
-        read -p "请输入机场面板 [1-4，默认1]：" PanelType
+        read -rp "请输入机场面板 [1-4，默认1]：" PanelType
         case "$PanelType" in
             1 ) PanelType="SSpanel" ;;
             2 ) PanelType="V2board" ;;
@@ -366,15 +366,15 @@ generate_config_file() {
             4 ) PanelType="Proxypanel" ;;
             * ) PanelType="SSpanel" ;;
         esac
-        read -p "请输入机场网址：" ApiHost
-        read -p "请输入面板对接API Key：" ApiKey
-        read -p "请输入节点Node ID:" NodeID
+        read -rp "请输入机场网址：" ApiHost
+        read -rp "请输入面板对接API Key：" ApiKey
+        read -rp "请输入节点Node ID:" NodeID
         echo -e "${yellow}请选择节点传输协议，如未列出则不支持：${plain}"
         echo -e "${green}1. Shadowsocks ${plain}"
         echo -e "${green}2. Shadowsocks-Plugin ${plain}"
         echo -e "${green}3. V2ray ${plain}"
         echo -e "${green}4. Trojan ${plain}"
-        read -p "请输入机场传输协议 [1-4，默认1]：" NodeType
+        read -rp "请输入机场传输协议 [1-4，默认1]：" NodeType
         case "$NodeType" in
             1 ) NodeType="Shadowsocks" ;;
             2 ) NodeType="Shadowsocks-Plugin" ;;
@@ -439,7 +439,7 @@ Nodes:
           ALICLOUD_SECRET_KEY: bbb
 EOF
         echo -e "${green}XrayR 配置文件生成完成，正在重新启动 XrayR 服务${plain}"
-        xrayr restart
+        restart 0
         before_show_menu
     else
         echo -e "${red}已取消 XrayR 配置文件生成${plain}"
@@ -511,7 +511,7 @@ show_menu() {
  "
  #后续更新可加入上方字符串中
     show_status
-    echo && read -p "请输入选择 [0-14]: " num
+    echo && read -rp "请输入选择 [0-14]: " num
 
     case "${num}" in
         0) config ;;
