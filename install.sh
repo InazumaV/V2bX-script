@@ -98,110 +98,110 @@ install_acme() {
     curl https://get.acme.sh | sh
 }
 
-install_XrayR() {
-    if [[ -e /usr/local/XrayR/ ]]; then
-        rm -rf /usr/local/XrayR/
+install_V2bX() {
+    if [[ -e /usr/local/V2bX/ ]]; then
+        rm -rf /usr/local/V2bX/
     fi
 
-    mkdir /usr/local/XrayR/ -p
-    cd /usr/local/XrayR/
+    mkdir /usr/local/V2bX/ -p
+    cd /usr/local/V2bX/
 
     if  [ $# == 0 ] ;then
-        last_version=$(curl -Ls "https://api.github.com/repos/Misaka-blog/XrayR/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+        last_version=$(curl -Ls "https://api.github.com/repos/Yuzuki616/V2bX/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
         if [[ ! -n "$last_version" ]]; then
-            echo -e "${red}检测 XrayR 版本失败，可能是超出 Github API 限制，请稍后再试，或手动指定 XrayR 版本安装${plain}"
+            echo -e "${red}检测 V2bX 版本失败，可能是超出 Github API 限制，请稍后再试，或手动指定 V2bX 版本安装${plain}"
             exit 1
         fi
-        echo -e "检测到 XrayR 最新版本：${last_version}，开始安装"
-        wget -q -N --no-check-certificate -O /usr/local/XrayR/XrayR-linux.zip https://github.com/Misaka-blog/XrayR/releases/download/${last_version}/XrayR-linux-${arch}.zip
+        echo -e "检测到 V2bX 最新版本：${last_version}，开始安装"
+        wget -q -N --no-check-certificate -O /usr/local/V2bX/V2bX-linux.zip https://github.com/Yuzuki616/V2bX/releases/download/${last_version}/V2bX-linux-${arch}.zip
         if [[ $? -ne 0 ]]; then
-            echo -e "${red}下载 XrayR 失败，请确保你的服务器能够下载 Github 的文件${plain}"
+            echo -e "${red}下载 V2bX 失败，请确保你的服务器能够下载 Github 的文件${plain}"
             exit 1
         fi
     else
         last_version=$1
-        url="https://github.com/Misaka-blog/XrayR/releases/download/${last_version}/XrayR-linux-${arch}.zip"
-        echo -e "开始安装 XrayR v$1"
-        wget -q -N --no-check-certificate -O /usr/local/XrayR/XrayR-linux.zip ${url}
+        url="https://github.com/Yuzuki616/V2bX/releases/download/${last_version}/V2bX-linux-${arch}.zip"
+        echo -e "开始安装 V2bX v$1"
+        wget -q -N --no-check-certificate -O /usr/local/V2bX/V2bX-linux.zip ${url}
         if [[ $? -ne 0 ]]; then
-            echo -e "${red}下载 XrayR v$1 失败，请确保此版本存在${plain}"
+            echo -e "${red}下载 V2bX v$1 失败，请确保此版本存在${plain}"
             exit 1
         fi
     fi
 
-    unzip XrayR-linux.zip
-    rm XrayR-linux.zip -f
-    chmod +x XrayR
-    mkdir /etc/XrayR/ -p
-    rm /etc/systemd/system/XrayR.service -f
-    file="https://github.com/Misaka-blog/XrayR-script/raw/master/XrayR.service"
-    wget -q -N --no-check-certificate -O /etc/systemd/system/XrayR.service ${file}
-    #cp -f XrayR.service /etc/systemd/system/
+    unzip V2bX-linux.zip
+    rm V2bX-linux.zip -f
+    chmod +x V2bX
+    mkdir /etc/V2bX/ -p
+    rm /etc/systemd/system/V2bX.service -f
+    file="https://github.com/Yuzuki616/V2bX-script/raw/master/V2bX.service"
+    wget -q -N --no-check-certificate -O /etc/systemd/system/V2bX.service ${file}
+    #cp -f V2bX.service /etc/systemd/system/
     systemctl daemon-reload
-    systemctl stop XrayR
-    systemctl enable XrayR
-    echo -e "${green}XrayR ${last_version}${plain} 安装完成，已设置开机自启"
-    cp geoip.dat /etc/XrayR/
-    cp geosite.dat /etc/XrayR/ 
+    systemctl stop V2bX
+    systemctl enable V2bX
+    echo -e "${green}V2bX ${last_version}${plain} 安装完成，已设置开机自启"
+    cp geoip.dat /etc/V2bX/
+    cp geosite.dat /etc/V2bX/
 
-    if [[ ! -f /etc/XrayR/config.yml ]]; then
-        cp config.yml /etc/XrayR/
+    if [[ ! -f /etc/V2bX/config.yml ]]; then
+        cp config.yml /etc/V2bX/
         echo -e ""
-        echo -e "全新安装，请先参看教程：https://github.com/XrayR-project/XrayR，配置必要的内容"
+        echo -e "全新安装，请先参看教程：https://github.com/V2bX-project/V2bX，配置必要的内容"
     else
-        systemctl start XrayR
+        systemctl start V2bX
         sleep 2
         check_status
         echo -e ""
         if [[ $? == 0 ]]; then
-            echo -e "${green}XrayR 重启成功${plain}"
+            echo -e "${green}V2bX 重启成功${plain}"
         else
-            echo -e "${red}XrayR 可能启动失败，请稍后使用 XrayR log 查看日志信息，若无法启动，则可能更改了配置格式，请前往 wiki 查看：https://github.com/XrayR-project/XrayR/wiki${plain}"
+            echo -e "${red}V2bX 可能启动失败，请稍后使用 V2bX log 查看日志信息，若无法启动，则可能更改了配置格式，请前往 wiki 查看：https://github.com/V2bX-project/V2bX/wiki${plain}"
         fi
     fi
 
-    if [[ ! -f /etc/XrayR/dns.json ]]; then
-        cp dns.json /etc/XrayR/
+    if [[ ! -f /etc/V2bX/dns.json ]]; then
+        cp dns.json /etc/V2bX/
     fi
-    if [[ ! -f /etc/XrayR/route.json ]]; then
-        cp route.json /etc/XrayR/
+    if [[ ! -f /etc/V2bX/route.json ]]; then
+        cp route.json /etc/V2bX/
     fi
-    if [[ ! -f /etc/XrayR/custom_outbound.json ]]; then
-        cp custom_outbound.json /etc/XrayR/
+    if [[ ! -f /etc/V2bX/custom_outbound.json ]]; then
+        cp custom_outbound.json /etc/V2bX/
     fi
-    if [[ ! -f /etc/XrayR/custom_inbound.json ]]; then
-        cp custom_inbound.json /etc/XrayR/
+    if [[ ! -f /etc/V2bX/custom_inbound.json ]]; then
+        cp custom_inbound.json /etc/V2bX/
     fi
-    if [[ ! -f /etc/XrayR/rulelist ]]; then
-        cp rulelist /etc/XrayR/
+    if [[ ! -f /etc/V2bX/rulelist ]]; then
+        cp rulelist /etc/V2bX/
     fi
-    curl -o /usr/bin/XrayR -Ls https://raw.githubusercontent.com/Misaka-blog/XrayR-script/master/XrayR.sh
-    chmod +x /usr/bin/XrayR
-    ln -s /usr/bin/XrayR /usr/bin/xrayr # 小写兼容
-    chmod +x /usr/bin/xrayr
+    curl -o /usr/bin/V2bX -Ls https://raw.githubusercontent.com/Yuzuki616/V2bX-script/master/V2bX.sh
+    chmod +x /usr/bin/V2bX
+    ln -s /usr/bin/V2bX /usr/bin/V2bX # 小写兼容
+    chmod +x /usr/bin/V2bX
     cd $cur_dir
     rm -f install.sh
     echo -e ""
-    echo "XrayR 管理脚本使用方法 (兼容使用xrayr执行，大小写不敏感): "
+    echo "V2bX 管理脚本使用方法 (兼容使用V2bX执行，大小写不敏感): "
     echo "------------------------------------------"
-    echo "XrayR              - 显示管理菜单 (功能更多)"
-    echo "XrayR start        - 启动 XrayR"
-    echo "XrayR stop         - 停止 XrayR"
-    echo "XrayR restart      - 重启 XrayR"
-    echo "XrayR status       - 查看 XrayR 状态"
-    echo "XrayR enable       - 设置 XrayR 开机自启"
-    echo "XrayR disable      - 取消 XrayR 开机自启"
-    echo "XrayR log          - 查看 XrayR 日志"
-    echo "XrayR generate     - 生成 XrayR 配置文件"
-    echo "XrayR update       - 更新 XrayR"
-    echo "XrayR update x.x.x - 更新 XrayR 指定版本"
-    echo "XrayR install      - 安装 XrayR"
-    echo "XrayR uninstall    - 卸载 XrayR"
-    echo "XrayR version      - 查看 XrayR 版本"
+    echo "V2bX              - 显示管理菜单 (功能更多)"
+    echo "V2bX start        - 启动 V2bX"
+    echo "V2bX stop         - 停止 V2bX"
+    echo "V2bX restart      - 重启 V2bX"
+    echo "V2bX status       - 查看 V2bX 状态"
+    echo "V2bX enable       - 设置 V2bX 开机自启"
+    echo "V2bX disable      - 取消 V2bX 开机自启"
+    echo "V2bX log          - 查看 V2bX 日志"
+    echo "V2bX generate     - 生成 V2bX 配置文件"
+    echo "V2bX update       - 更新 V2bX"
+    echo "V2bX update x.x.x - 更新 V2bX 指定版本"
+    echo "V2bX install      - 安装 V2bX"
+    echo "V2bX uninstall    - 卸载 V2bX"
+    echo "V2bX version      - 查看 V2bX 版本"
     echo "------------------------------------------"
 }
 
 echo -e "${green}开始安装${plain}"
 install_base
 install_acme
-install_XrayR $1
+install_V2bX $1
