@@ -147,7 +147,7 @@ install_V2bX() {
     if [[ ! -f /etc/V2bX/config.yml ]]; then
         cp config.yml /etc/V2bX/
         echo -e ""
-        echo -e "全新安装，请先参看教程：https://github.com/V2bX-project/V2bX，配置必要的内容"
+        echo -e "全新安装，请先参看教程：https://github.com/Yuzuki616/V2bX，配置必要的内容"
     else
         systemctl start V2bX
         sleep 2
@@ -177,7 +177,7 @@ install_V2bX() {
     fi
     curl -o /usr/bin/V2bX -Ls https://raw.githubusercontent.com/Yuzuki616/V2bX-script/master/V2bX.sh
     chmod +x /usr/bin/V2bX
-    ln -s /usr/bin/V2bX /usr/bin/V2bX # 小写兼容
+    #ln -s /usr/bin/V2bX /usr/bin/v2bx # 小写兼容
     chmod +x /usr/bin/V2bX
     cd $cur_dir
     rm -f install.sh

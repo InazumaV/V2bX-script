@@ -353,33 +353,18 @@ generate_config_file() {
     echo -e "${red}4. 目前不支持TLS${plain}"
     read -rp "是否继续生成配置文件？(y/n)" generate_config_file_continue
     if [[ $generate_config_file_continue =~ "y"|"Y" ]]; then
-        echo -e "${yellow}请选择你的机场面板，如未列出则不支持：${plain}"
-        echo -e "${green}1. SSpanel ${plain}"
-        echo -e "${green}2. V2board ${plain}"
-        echo -e "${green}3. PMpanel ${plain}"
-        echo -e "${green}4. Proxypanel ${plain}"
-        read -rp "请输入机场面板 [1-4，默认1]：" PanelType
-        case "$PanelType" in
-            1 ) PanelType="SSpanel" ;;
-            2 ) PanelType="V2board" ;;
-            3 ) PanelType="PMpanel" ;;
-            4 ) PanelType="Proxypanel" ;;
-            * ) PanelType="SSpanel" ;;
-        esac
         read -rp "请输入机场网址：" ApiHost
         read -rp "请输入面板对接API Key：" ApiKey
         read -rp "请输入节点Node ID:" NodeID
         echo -e "${yellow}请选择节点传输协议，如未列出则不支持：${plain}"
         echo -e "${green}1. Shadowsocks ${plain}"
-        echo -e "${green}2. Shadowsocks-Plugin ${plain}"
-        echo -e "${green}3. V2ray ${plain}"
-        echo -e "${green}4. Trojan ${plain}"
+        echo -e "${green}2. V2ray ${plain}"
+        echo -e "${green}3. Trojan ${plain}"
         read -rp "请输入机场传输协议 [1-4，默认1]：" NodeType
         case "$NodeType" in
             1 ) NodeType="Shadowsocks" ;;
-            2 ) NodeType="Shadowsocks-Plugin" ;;
-            3 ) NodeType="V2ray" ;;
-            4 ) NodeType="Trojan" ;;
+            2 ) NodeType="V2ray" ;;
+            3 ) NodeType="Trojan" ;;
             * ) NodeType="Shadowsocks" ;;
         esac
         cd /etc/V2bX
@@ -401,7 +386,6 @@ ConnetionConfig:
   BufferSize: 64 # The internal cache size of each connection, kB 
 Nodes:
   -
-    PanelType: "$PanelType" # Panel type: SSpanel, V2board, PMpanel, Proxypanel
     ApiConfig:
       ApiHost: "$ApiHost"
       ApiKey: "$ApiKey"
