@@ -94,10 +94,6 @@ check_status() {
     fi
 }
 
-install_acme() {
-    curl https://get.acme.sh | sh
-}
-
 install_V2bX() {
     if [[ -e /usr/local/V2bX/ ]]; then
         rm -rf /usr/local/V2bX/
@@ -203,5 +199,4 @@ install_V2bX() {
 
 echo -e "${green}开始安装${plain}"
 install_base
-install_acme
 install_V2bX $1
