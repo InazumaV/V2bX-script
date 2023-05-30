@@ -12,7 +12,7 @@ LimitRSS=infinity
 LimitCORE=infinity
 LimitNOFILE=999999
 WorkingDirectory=/usr/local/V2bX/
-ExecStart=/usr/local/V2bX/V2bX -config /etc/V2bX/config.yml
+ExecStart=/usr/local/V2bX/V2bX server
 Restart=on-failure
 RestartSec=10
 
