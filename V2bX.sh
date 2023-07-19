@@ -335,9 +335,18 @@ show_enable_status() {
     fi
 }
 
+generate_x25519_key() {
+    echo -n "正在生成 x25519 密钥："
+    /usr/local/V2bX/V2bX x25519
+    echo ""
+    if [[ $# == 0 ]]; then
+        before_show_menu
+    fi
+}
+
 show_V2bX_version() {
     echo -n "V2bX 版本："
-    /usr/local/V2bX/V2bX -version
+    /usr/local/V2bX/V2bX version
     echo ""
     if [[ $# == 0 ]]; then
         before_show_menu
@@ -370,57 +379,98 @@ generate_config_file() {
         cd /etc/V2bX
         mv config.yml config.yml.bak
         cat <<EOF > /etc/V2bX/config.yml
-Log:
-  Level: warning # Log level: none, error, warning, info, debug 
-  AccessPath: # /etc/V2bX/access.Log
-  ErrorPath: # /etc/V2bX/error.log
-DnsConfigPath: # /etc/V2bX/dns.json # Path to dns config, check https://xtls.github.io/config/base/dns/ for help
-InboundConfigPath: # /etc/V2bX/custom_inbound.json # Path to custom inbound config, check https://xtls.github.io/config/inbound.html for help
-RouteConfigPath: # /etc/V2bX/route.json # Path to route config, check https://xtls.github.io/config/base/route/ for help
-OutboundConfigPath: # /etc/V2bX/custom_outbound.json # Path to custom outbound config, check https://xtls.github.io/config/base/outbound/ for help
-ConnetionConfig:
-  Handshake: 4 # Handshake time limit, Second
-  ConnIdle: 30 # Connection idle time limit, Second
-  UplinkOnly: 2 # Time limit when the connection downstream is closed, Second
-  DownlinkOnly: 4 # Time limit when the connection is closed after the uplink is closed, Second
-  BufferSize: 64 # The internal cache size of each connection, kB 
+CoreConfig:
+  Type: "xray" # Core type, default support "xray" and "hy". If you need many cores, use " " to split
+  XrayConfig:
+    Log:
+      Level: warning # Log level: none, error, warning, info, debug
+      AccessPath: # /etc/XrayR/access.Log
+      ErrorPath: # /etc/XrayR/error.log
+    DnsConfigPath: # /etc/XrayR/dns.json # Path to dns config, check https://xtls.github.io/config/dns.html for help
+    RouteConfigPath: # /etc/XrayR/route.json # Path to route config, check https://xtls.github.io/config/routing.html for help
+    InboundConfigPath: # /etc/XrayR/custom_inbound.json # Path to custom inbound config, check https://xtls.github.io/config/inbound.html for help
+    OutboundConfigPath: # /etc/XrayR/custom_outbound.json # Path to custom outbound config, check https://xtls.github.io/config/outbound.html for help
+    ConnectionConfig:
+      Handshake: 4 # Handshake time limit, Second
+      ConnIdle: 30 # Connection idle time limit, Second
+      UplinkOnly: 2 # Time limit when the connection downstream is closed, Second
+      DownlinkOnly: 4 # Time limit when the connection is closed after the uplink is closed, Second
+      BufferSize: 64 # The internal cache size of each connection, kB
 Nodes:
-  -
-    ApiConfig:
-      ApiHost: "$ApiHost"
-      ApiKey: "$ApiKey"
-      NodeID: $NodeID
-      NodeType: $NodeType # Node type: V2ray, Shadowsocks, Trojan, Shadowsocks-Plugin
+  - ApiConfig:
+      ApiHost: "http://127.0.0.1:667"
+      ApiKey: "123"
+      NodeID: 41
+      NodeType: V2ray # Node type: V2ray, Shadowsocks, Trojan
       Timeout: 30 # Timeout for the api request
-      EnableVless: false # Enable Vless for V2ray Type
-      EnableXTLS: false # Enable XTLS for V2ray and Trojan
-      SpeedLimit: 0 # Mbps, Local settings will replace remote settings, 0 means disable
-      DeviceLimit: 0 # Local settings will replace remote settings, 0 means disable
-      RuleListPath: # /etc/V2bX/rulelist Path to local rulelist file
+      RuleListPath: # /etc/XrayR/rulelist Path to local rulelist file
     ControllerConfig:
       ListenIP: 0.0.0.0 # IP address you want to listen
       SendIP: 0.0.0.0 # IP address you want to send pacakage
-      UpdatePeriodic: 60 # Time to update the nodeinfo, how many sec.
-      EnableDNS: false # Use custom DNS config, Please ensure that you set the dns.json well
-      DNSType: AsIs # AsIs, UseIP, UseIPv4, UseIPv6, DNS strategy
-      EnableProxyProtocol: false # Only works for WebSocket and TCP
-      EnableFallback: false # Only support for Trojan and Vless
-      FallBackConfigs:  # Support multiple fallbacks
-        -
-          SNI: # TLS SNI(Server Name Indication), Empty for any
-          Path: # HTTP PATH, Empty for any
-          Dest: 80 # Required, Destination of fallback, check https://xtls.github.io/config/fallback/ for details.
-          ProxyProtocolVer: 0 # Send PROXY protocol version, 0 for dsable
+      XrayOptions:
+        EnableDNS: false # Use custom DNS config, Please ensure that you set the dns.json well
+        DNSType: AsIs # AsIs, UseIP, UseIPv4, UseIPv6, DNS strategy
+        EnableTFO: false # Enable TCP Fast Open
+        EnableProxyProtocol: false # Only works for WebSocket and TCP
+        EnableFallback: false # Only support for Trojan and Vless
+        FallBackConfigs: # Support multiple fallbacks
+          - SNI: # TLS SNI(Server Name Indication), Empty for any
+            Alpn: # Alpn, Empty for any
+            Path: # HTTP PATH, Empty for any
+            Dest: 80 # Required, Destination of fallback, check https://xtls.github.io/config/features/fallback.html for details.
+            ProxyProtocolVer: 0 # Send PROXY protocol version, 0 for disable
+      HyOptions:
+        Resolver: "udp://1.1.1.1:53" # DNS resolver address
+        ResolvePreference: 64 # DNS IPv4/IPv6 preference. Available options: "64" (IPv6 first, fallback to IPv4), "46" (IPv4 first, fallback to IPv6), "6" (IPv6 only), "4" (IPv4 only)
+        SendDevice: "eth0" # Bind device for outbound connections (usually requires root)
+      LimitConfig:
+        EnableRealtime: false # Check device limit on real time
+        SpeedLimit: 0 # Mbps, Local settings will replace remote settings, 0 means disable
+        DeviceLimit: 0 # Local settings will replace remote settings, 0 means disable
+        ConnLimit: 0 # Connecting limit, only working for TCP, 0mean
+        EnableIpRecorder: false # Enable online ip report
+        IpRecorderConfig:
+          Type: "Recorder" # Recorder type: Recorder, Redis
+          RecorderConfig:
+            Url: "http://127.0.0.1:123" # Report url
+            Token: "123" # Report token
+            Timeout: 10 # Report timeout, sec.
+          RedisConfig:
+            Address: "127.0.0.1:6379" # Redis address
+            Password: "" # Redis password
+            DB: 0 # Redis DB
+            Expiry: 60 # redis expiry time, sec.
+          Periodic: 60 # Report interval, sec.
+          EnableIpSync: false # Enable online ip sync
+        EnableDynamicSpeedLimit: false # Enable dynamic speed limit
+        DynamicSpeedLimitConfig:
+          Periodic: 60 # Time to check the user traffic , sec.
+          Traffic: 0 # Traffic limit, MB
+          SpeedLimit: 0 # Speed limit, Mbps
+          ExpireTime: 0 # Time limit, sec.
       CertConfig:
-        CertMode: dns # Option about how to get certificate: none, file, http, dns. Choose "none" will forcedly disable the tls config.
+        CertMode: dns # Option about how to get certificate: none, file, http, dns, reality, remote. Choose "none" will forcedly disable the tls config.
         CertDomain: "node1.test.com" # Domain to cert
-        CertFile: /etc/V2bX/cert/node1.test.com.cert # Provided if the CertMode is file
-        KeyFile: /etc/V2bX/cert/node1.test.com.key
+        CertFile: /etc/XrayR/cert/node1.test.com.cert # Provided if the CertMode is file
+        KeyFile: /etc/XrayR/cert/node1.test.com.key
         Provider: alidns # DNS cert provider, Get the full support list here: https://go-acme.github.io/lego/dns/
         Email: test@me.com
         DNSEnv: # DNS ENV option used by DNS provider
           ALICLOUD_ACCESS_KEY: aaa
           ALICLOUD_SECRET_KEY: bbb
+        RealityConfig: # This config like RealityObject for xray-core, please check https://xtls.github.io/config/transport.html#realityobject
+          Dest: 80 # Same fallback dest
+          Xver: 0 # Same fallback xver
+          ServerNames:
+            - "example.com"
+            - "www.example.com"
+          PrivateKey: "" # Private key for server
+          MinClientVer: "" # Min client version
+          MaxClientVer: "" # Max client version
+          MaxTimeDiff: 0 # Max time difference, ms
+          ShortIds: # Short ids
+            - ""
+            - "0123456789abcdef"
 EOF
         echo -e "${green}V2bX 配置文件生成完成，正在重新启动 V2bX 服务${plain}"
         restart 0
@@ -459,6 +509,7 @@ show_usage() {
     echo "V2bX enable       - 设置 V2bX 开机自启"
     echo "V2bX disable      - 取消 V2bX 开机自启"
     echo "V2bX log          - 查看 V2bX 日志"
+    echo "V2bX x25519       - 生成 x25519 密钥"
     echo "V2bX generate     - 生成 V2bX 配置文件"
     echo "V2bX update       - 更新 V2bX"
     echo "V2bX update x.x.x - 安装 V2bX 指定版本"
@@ -471,7 +522,7 @@ show_usage() {
 show_menu() {
     echo -e "
   ${green}V2bX 后端管理脚本，${plain}${red}不适用于docker${plain}
---- https://github.com/Yuzuki616/V2bX ---
+--- https://github.com/cubemaze/V2bX ---
   ${green}0.${plain} 修改配置
 ————————————————
   ${green}1.${plain} 安装 V2bX
@@ -485,17 +536,18 @@ show_menu() {
   ${green}8.${plain} 查看 V2bX 日志
 ————————————————
   ${green}9.${plain} 设置 V2bX 开机自启
- ${green}10.${plain} 取消 V2bX 开机自启
+  ${green}10.${plain} 取消 V2bX 开机自启
 ————————————————
- ${green}11.${plain} 一键安装 bbr (最新内核)
- ${green}12.${plain} 查看 V2bX 版本 
- ${green}13.${plain} 升级 V2bX 维护脚本
- ${green}14.${plain} 生成 V2bX 配置文件
- ${green}15.${plain} 放行 VPS 的所有网络端口
+  ${green}11.${plain} 一键安装 bbr (最新内核)
+  ${green}12.${plain} 查看 V2bX 版本
+  ${green}13.${plain} 生成 X25519 密钥
+  ${green}14.${plain} 升级 V2bX 维护脚本
+  ${green}15.${plain} 生成 V2bX 配置文件
+  ${green}16.${plain} 放行 VPS 的所有网络端口
  "
  #后续更新可加入上方字符串中
     show_status
-    echo && read -rp "请输入选择 [0-14]: " num
+    echo && read -rp "请输入选择 [0-16]: " num
 
     case "${num}" in
         0) config ;;
@@ -511,10 +563,11 @@ show_menu() {
         10) check_install && disable ;;
         11) install_bbr ;;
         12) check_install && show_V2bX_version ;;
-        13) update_shell ;;
-        14) generate_config_file ;;
-        15) open_ports ;;
-        *) echo -e "${red}请输入正确的数字 [0-14]${plain}" ;;
+        13) check_install && generate_x25519_key ;;
+        14) update_shell ;;
+        15) generate_config_file ;;
+        16) open_ports ;;
+        *) echo -e "${red}请输入正确的数字 [0-16]${plain}" ;;
     esac
 }
 
@@ -533,6 +586,7 @@ if [[ $# > 0 ]]; then
         "generate") generate_config_file ;;
         "install") check_uninstall 0 && install 0 ;;
         "uninstall") check_install 0 && uninstall 0 ;;
+        "x25519") check_install 0 && generate_x25519_key 0 ;;
         "version") check_install 0 && show_V2bX_version 0 ;;
         "update_shell") update_shell ;;
         *) show_usage
