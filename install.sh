@@ -103,20 +103,20 @@ install_V2bX() {
     cd /usr/local/V2bX/
 
     if  [ $# == 0 ] ;then
-        last_version=$(curl -Ls "https://api.github.com/repos/Yuzuki616/V2bX/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+        last_version=$(curl -Ls "https://api.github.com/repos/InazumaV/V2bX/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
         if [[ ! -n "$last_version" ]]; then
             echo -e "${red}检测 V2bX 版本失败，可能是超出 Github API 限制，请稍后再试，或手动指定 V2bX 版本安装${plain}"
             exit 1
         fi
         echo -e "检测到 V2bX 最新版本：${last_version}，开始安装"
-        wget -q -N --no-check-certificate -O /usr/local/V2bX/V2bX-linux.zip https://github.com/Yuzuki616/V2bX/releases/download/${last_version}/V2bX-linux-${arch}.zip
+        wget -q -N --no-check-certificate -O /usr/local/V2bX/V2bX-linux.zip https://github.com/InazumaV/V2bX/releases/download/${last_version}/V2bX-linux-${arch}.zip
         if [[ $? -ne 0 ]]; then
             echo -e "${red}下载 V2bX 失败，请确保你的服务器能够下载 Github 的文件${plain}"
             exit 1
         fi
     else
         last_version=$1
-        url="https://github.com/Yuzuki616/V2bX/releases/download/${last_version}/V2bX-linux-${arch}.zip"
+        url="https://github.com/InazumaV/V2bX/releases/download/${last_version}/V2bX-linux-${arch}.zip"
         echo -e "开始安装 V2bX v$1"
         wget -q -N --no-check-certificate -O /usr/local/V2bX/V2bX-linux.zip ${url}
         if [[ $? -ne 0 ]]; then
@@ -130,7 +130,7 @@ install_V2bX() {
     chmod +x V2bX
     mkdir /etc/V2bX/ -p
     rm /etc/systemd/system/V2bX.service -f
-    file="https://github.com/Yuzuki616/V2bX-script/raw/master/V2bX.service"
+    file="https://github.com/InazumaV/V2bX-script/raw/master/V2bX.service"
     wget -q -N --no-check-certificate -O /etc/systemd/system/V2bX.service ${file}
     #cp -f V2bX.service /etc/systemd/system/
     systemctl daemon-reload
@@ -143,7 +143,7 @@ install_V2bX() {
     if [[ ! -f /etc/V2bX/config.yml ]]; then
         cp config.yml /etc/V2bX/
         echo -e ""
-        echo -e "全新安装，请先参看教程：https://github.com/Yuzuki616/V2bX，配置必要的内容"
+        echo -e "全新安装，请先参看教程：https://github.com/InazumaV/V2bX，配置必要的内容"
     else
         systemctl start V2bX
         sleep 2
@@ -171,7 +171,7 @@ install_V2bX() {
     if [[ ! -f /etc/V2bX/rulelist ]]; then
         cp rulelist /etc/V2bX/
     fi
-    curl -o /usr/bin/V2bX -Ls https://raw.githubusercontent.com/Yuzuki616/V2bX-script/master/V2bX.sh
+    curl -o /usr/bin/V2bX -Ls https://raw.githubusercontent.com/InazumaV/V2bX-script/master/V2bX.sh
     chmod +x /usr/bin/V2bX
     ln -s /usr/bin/V2bX /usr/bin/v2bx
     chmod +x /usr/bin/v2bx
