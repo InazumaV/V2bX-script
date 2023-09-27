@@ -75,9 +75,13 @@ install_base() {
     if [[ x"${release}" == x"centos" ]]; then
         yum install epel-release -y
         yum install wget curl unzip tar crontabs socat -y
+        yum install ca-certificates wget -y
+        update-ca-trust force-enable
     else
         apt-get update -y
         apt install wget curl unzip tar cron socat -y
+        apt-get install ca-certificates wget -y
+        update-ca-certificates
     fi
 }
 
@@ -117,10 +121,10 @@ install_V2bX() {
     else
         last_version=$1
         url="https://github.com/InazumaV/V2bX/releases/download/${last_version}/V2bX-linux-${arch}.zip"
-        echo -e "开始安装 V2bX v$1"
+        echo -e "开始安装 V2bX $1"
         wget -q -N --no-check-certificate -O /usr/local/V2bX/V2bX-linux.zip ${url}
         if [[ $? -ne 0 ]]; then
-            echo -e "${red}下载 V2bX v$1 失败，请确保此版本存在${plain}"
+            echo -e "${red}下载 V2bX $1 失败，请确保此版本存在${plain}"
             exit 1
         fi
     fi
@@ -140,10 +144,11 @@ install_V2bX() {
     cp geoip.dat /etc/V2bX/
     cp geosite.dat /etc/V2bX/
 
-    if [[ ! -f /etc/V2bX/config.yml ]]; then
-        cp config.yml /etc/V2bX/
+    if [[ ! -f /etc/V2bX/config.json ]]; then
+        cp config.json /etc/V2bX/
         echo -e ""
-        echo -e "全新安装，请先参看教程：https://github.com/InazumaV/V2bX，配置必要的内容"
+        echo -e "全新安装，请先参看教程：https://github.com/InazumaV/V2bX/tree/master/example，配置必要的内容"
+        first_install=true
     else
         systemctl start V2bX
         sleep 2
@@ -154,6 +159,7 @@ install_V2bX() {
         else
             echo -e "${red}V2bX 可能启动失败，请稍后使用 V2bX log 查看日志信息，若无法启动，则可能更改了配置格式，请前往 wiki 查看：https://github.com/V2bX-project/V2bX/wiki${plain}"
         fi
+        first_install=false
     fi
 
     if [[ ! -f /etc/V2bX/dns.json ]]; then
@@ -168,14 +174,12 @@ install_V2bX() {
     if [[ ! -f /etc/V2bX/custom_inbound.json ]]; then
         cp custom_inbound.json /etc/V2bX/
     fi
-    if [[ ! -f /etc/V2bX/config.json ]]; then
-        cp config.json /etc/V2bX/
-    fi
     curl -o /usr/bin/V2bX -Ls https://raw.githubusercontent.com/InazumaV/V2bX-script/master/V2bX.sh
     chmod +x /usr/bin/V2bX
-    ln -s /usr/bin/V2bX /usr/bin/v2bx
-    chmod +x /usr/bin/v2bx
-    ln -s /usr/bin/V2bX /usr/bin/v2bx # 小写兼容
+    if [ ! -L /usr/bin/v2bx ]; then
+        ln -s /usr/bin/V2bX /usr/bin/v2bx
+        chmod +x /usr/bin/v2bx
+    fi
     cd $cur_dir
     rm -f install.sh
     echo -e ""
@@ -189,6 +193,7 @@ install_V2bX() {
     echo "V2bX enable       - 设置 V2bX 开机自启"
     echo "V2bX disable      - 取消 V2bX 开机自启"
     echo "V2bX log          - 查看 V2bX 日志"
+    echo "V2bX x25519       - 生成 x25519 密钥"
     echo "V2bX generate     - 生成 V2bX 配置文件"
     echo "V2bX update       - 更新 V2bX"
     echo "V2bX update x.x.x - 更新 V2bX 指定版本"
@@ -196,6 +201,20 @@ install_V2bX() {
     echo "V2bX uninstall    - 卸载 V2bX"
     echo "V2bX version      - 查看 V2bX 版本"
     echo "------------------------------------------"
+    # 首次安装询问是否生成配置文件
+    if [[ $first_install == true ]]; then
+        read -rp "检测到你为第一次安装V2bX,是否自动直接生成配置文件？(y/n): " if_generate
+        if [[ $if_generate == [Yy] ]]; then
+            curl -o ./initconfig.sh -Ls https://raw.githubusercontent.com/InazumaV/V2bX-script/master/initconfig.sh
+            source initconfig.sh
+            rm initconfig.sh -f
+            generate_config_file
+            read -rp "是否安装bbr内核 ?(y/n): " if_install_bbr
+            if [[ $if_install_bbr == [Yy] ]]; then
+                install_bbr
+            fi
+        fi
+    fi
 }
 
 echo -e "${green}开始安装${plain}"
