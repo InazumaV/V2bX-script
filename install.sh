@@ -168,8 +168,8 @@ install_V2bX() {
     if [[ ! -f /etc/V2bX/custom_inbound.json ]]; then
         cp custom_inbound.json /etc/V2bX/
     fi
-    if [[ ! -f /etc/V2bX/rulelist ]]; then
-        cp rulelist /etc/V2bX/
+    if [[ ! -f /etc/V2bX/config.json ]]; then
+        cp config.json /etc/V2bX/
     fi
     curl -o /usr/bin/V2bX -Ls https://raw.githubusercontent.com/InazumaV/V2bX-script/master/V2bX.sh
     chmod +x /usr/bin/V2bX
